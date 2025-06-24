@@ -110,7 +110,32 @@ class _MyHomePageState extends State<MyHomePage> {
                 backgroundImage: AssetImage('assets/images/landskape.jpeg'),
               ),
               const SizedBox(height: 16,),
-              Text('Abdifataah Abdillahi Ali', style: GoogleFonts.dancingScript(fontSize: 28, fontWeight: FontWeight.bold),)
+              Text('Abdifataah Abdillahi Ali', 
+              style: GoogleFonts.dancingScript(fontSize: 28,
+               fontWeight: FontWeight.bold),
+              
+               ),
+              Text('Student at Linnaeus University',
+              style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Row(
+                children: const [
+                  
+                  Icon(Icons.email),
+                  SizedBox(width: 10),
+                  Text('E-mail: aa226wu@student.lnu.se'),
+                  
+                  Icon(Icons.phone),
+                  SizedBox(width: 10),
+                  Text('Phone: 0701234567'),
+                  
+                  Icon(Icons.web),
+                  SizedBox(width: 10),
+                  Text('Website: https://lnu.se/ ')
+                ],
+              )
+
+              
 
               ]
 
