@@ -112,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 16,),
               Text('Abdifataah Abdillahi Ali', 
               style: GoogleFonts.dancingScript(fontSize: 28,
-               fontWeight: FontWeight.bold),
+               fontWeight: FontWeight.bold)
               
                ),
               Text('Student at Linnaeus University',
@@ -122,18 +122,33 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: const [
                   
                   Icon(Icons.email),
-                  SizedBox(width: 10),
-                  Text('E-mail: aa226wu@student.lnu.se'),
-                  
+                  SizedBox(width: 12),
+                  Text(
+                    'E-mail: aa226wu@student.lnu.se', 
+                    style:TextStyle(fontSize: 12)
+                  )
+                ]
+              ),
+              Row(
+                children: [
                   Icon(Icons.phone),
-                  SizedBox(width: 10),
-                  Text('Phone: 0701234567'),
-                  
-                  Icon(Icons.web),
-                  SizedBox(width: 10),
-                  Text('Website: https://lnu.se/ ')
+                  SizedBox(width: 12),
+                  Text(
+                    'Phone: 0701234567',
+                    style:TextStyle(fontSize: 12)
+                    )
                 ],
-              )
+                ),
+                Row(
+                  children: [
+                  Icon(Icons.web),
+                  SizedBox(width: 12),
+                  Text(
+                    'Website: https://lnu.se/ ',
+                    style:TextStyle(fontSize: 12)
+                    )
+                  ]
+                )
 
               
 
