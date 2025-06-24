@@ -10,6 +10,7 @@ environment:
 dependencies:
   flutter:       # Required for every Flutter project
     sdk: flutter # Required for every Flutter project
+  google_fonts: ^6.2.1
   flutter_localizations: # Required to enable localization
     sdk: flutter         # Required to enable localization
 
