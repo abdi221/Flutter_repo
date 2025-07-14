@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
                SizedBox(height: 102),
 
               Card(
-                color: const Color.fromARGB(255, 240, 107, 107),
+                color: const Color.fromARGB(255, 240, 140, 140),
                 elevation: 5,
                 margin: EdgeInsets.symmetric(horizontal: 20,
                 vertical: 16),
@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Student at Linnaeus University',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                       ),
 
                       SizedBox(height: 16),
