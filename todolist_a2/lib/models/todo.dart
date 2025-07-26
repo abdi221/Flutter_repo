@@ -1,11 +1,11 @@
 class Todo {
   String text;
-  DateTime? deadline;
   bool isDone;
+  DateTime? deadline;
 
   Todo({
     required this.text,
-    this.deadline,
     this.isDone = false,
+    this.deadline,
   });
 }
