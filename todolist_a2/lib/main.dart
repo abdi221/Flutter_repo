@@ -30,9 +30,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Todo> _todos = [];
+  final List<Todo> _todos = [];
   final TextEditingController _controller = TextEditingController();
-  Settings _settings = Settings();
+  final Settings _settings = Settings();
 
   void _addTodo([Todo? editing]) {
     String text = _controller.text.trim();

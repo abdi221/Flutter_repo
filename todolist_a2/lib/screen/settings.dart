@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/todo.dart'; // if you need Todo here; otherwise drop
+// if you need Todo here; otherwise drop
 
 enum SortOrder { creationDate, deadline, alphabetical }
 
