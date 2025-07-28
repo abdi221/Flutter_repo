@@ -1,165 +1,198 @@
 import 'package:flutter/material.dart';
-import 'models/todo.dart';
-import 'widgets/todo_item.dart';
-import 'screen/settings.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My ToDo App',
+      title: 'Minimal Todo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      home: const MyHomePage(),
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        scaffoldBackgroundColor: Colors.grey[100],
+        inputDecorationTheme: const InputDecorationTheme(
+          border: OutlineInputBorder(),
+          filled: true,
+          fillColor: Colors.white,
+        ),
+      ),
+      home: const TodoPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
+class TodoPage extends StatefulWidget {
+  const TodoPage({super.key});
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _TodoPageState createState() => _TodoPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final List<Todo> _todos = [];
-  final TextEditingController _controller = TextEditingController();
-  final Settings _settings = Settings();
+class _TodoPageState extends State<TodoPage> {
+  final _listKey = GlobalKey<AnimatedListState>();
+  final _controller = TextEditingController();
+  final List<String> _tasks = [];
+  int? _selectedIndex;
 
-  void _addTodo([Todo? editing]) {
-    String text = _controller.text.trim();
-    if (text.isEmpty) return;
-
-    setState(() {
-      if (editing != null) {
-        editing.text = text;
-      } else {
-        _todos.add(Todo(text: text));
-      }
-      _controller.clear();
-    });
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showTutorial());
   }
 
-  void _editTodo(Todo todo) {
-    _controller.text = todo.text;
-    _addTodo(todo);
-  }
-
-  void _goToSettings() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => SettingsPage(settings: _settings),
+  void _showTutorial() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Welcome to Minimal Todo!'),
+        content: const Text(
+          '• Swipe left on a task to delete it.\n'
+          '• Tap a task to highlight and edit it.\n'
+          '• Tap the edit button on the right to load it.\n'
+          '• Enter text and tap + to add or update.'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it!'),
+          ),
+        ],
       ),
     );
-    setState(() {}); // rebuild with new settings
   }
 
-  List<Todo> get _visibleTodos {
-    List<Todo> list = _settings.hideCompleted
-        ? _todos.where((t) => !t.isDone).toList()
-        : List.from(_todos);
-
-    if (_settings.sortOrder == SortOrder.alphabetical) {
-      list.sort((a, b) => a.text.compareTo(b.text));
-    } else if (_settings.sortOrder == SortOrder.deadline) {
-      list.sort((a, b) {
-        if (a.deadline == null && b.deadline == null) return 0;
-        if (a.deadline == null) return 1;
-        if (b.deadline == null) return -1;
-        return a.deadline!.compareTo(b.deadline!);
+  void _addTask() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    if (_selectedIndex != null) {
+      // update existing
+      setState(() {
+        _tasks[_selectedIndex!] = text;
+        _selectedIndex = null;
       });
+    } else {
+      final index = _tasks.length;
+      _tasks.add(text);
+      _listKey.currentState?.insertItem(
+        index,
+        duration: const Duration(milliseconds: 300),
+      );
     }
+    _controller.clear();
+  }
 
-    return list;
+  void _removeTask(int index) {
+    final removed = _tasks.removeAt(index);
+    _listKey.currentState?.removeItem(
+      index,
+      (context, animation) => _buildItem(removed, animation, index),
+      duration: const Duration(milliseconds: 300),
+    );
+    if (_selectedIndex == index) setState(() => _selectedIndex = null);
+  }
+
+  Widget _buildItem(String text, Animation<double> animation, int index) {
+    final isSelected = _selectedIndex == index;
+    return SizeTransition(
+      sizeFactor: animation,
+      axisAlignment: 0.0,
+      child: Card(
+        color: isSelected ? Colors.teal.shade50 : null,
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 2,
+        child: Dismissible(
+          key: ValueKey(text + index.toString()),
+          direction: DismissDirection.endToStart,
+          onDismissed: (_) => _removeTask(index),
+          background: Container(
+            decoration: BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 20),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+          child: ListTile(
+            tileColor: isSelected ? Colors.teal.shade50 : null,
+            title: Text(text),
+            trailing: isSelected
+                ? IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      _controller.text = text;
+                    },
+                  )
+                : const Icon(Icons.drag_handle),
+            onTap: () {
+              setState(() {
+                _selectedIndex = isSelected ? null : index;
+                _controller.text = text;
+              });
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = _settings.darkMode;
-
-    return MaterialApp(
-      theme: isDark ? ThemeData.dark() : ThemeData.light(),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('My ToDo App'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: _goToSettings,
-            )
-          ],
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      decoration: const InputDecoration(
-                        hintText: 'Add a new task...',
-                        border: OutlineInputBorder(),
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('Minimal Todo'),
+      ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/wallpaper.jpeg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          decoration: const InputDecoration(hintText: 'New task...'),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _addTask,
+                        child: const Icon(Icons.add),
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () => _addTodo(),
+                ),
+                Expanded(
+                  child: AnimatedList(
+                    key: _listKey,
+                    initialItemCount: _tasks.length,
+                    itemBuilder: (context, index, animation) {
+                      return _buildItem(_tasks[index], animation, index);
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Expanded(
-              child: _visibleTodos.isEmpty
-                  ? const Center(child: Text('No tasks yet'))
-                  : ListView.builder(
-                      itemCount: _visibleTodos.length,
-                      itemBuilder: (context, index) {
-                        final todo = _visibleTodos[index];
-                        return Dismissible(
-                          key: Key(todo.text + index.toString()),
-                          direction: DismissDirection.endToStart,
-                          onDismissed: (_) {
-                            setState(() {
-                              _todos.remove(todo);
-                            });
-                          },
-                          background: Container(
-                            color: Colors.red,
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 20),
-                            child: const Icon(Icons.delete, color: Colors.white),
-                          ),
-                          child: TodoItem(
-                            todo: todo,
-                            onToggle: () {
-                              setState(() {
-                                todo.isDone = !todo.isDone;
-                              });
-                            },
-                            onEdit: () {
-                              _controller.text = todo.text;
-                              setState(() {
-                                _todos.remove(todo); // Remove and re-add
-                              });
-                            },
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
