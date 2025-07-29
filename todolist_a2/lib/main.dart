@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key});
   @override
+  // ignore: library_private_types_in_public_api
   _TodoPageState createState() => _TodoPageState();
 }
 
@@ -67,7 +68,7 @@ class _TodoPageState extends State<TodoPage> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
     if (_selectedIndex != null) {
-      // update existing
+      // update existing task
       setState(() {
         _tasks[_selectedIndex!] = text;
         _selectedIndex = null;
@@ -126,17 +127,24 @@ class _TodoPageState extends State<TodoPage> {
                 ? IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () {
-                      _controller.text = text;
+                      final updated = _controller.text.trim();
+                      if (updated.isEmpty) return;
+                      setState(() {
+                        _tasks[index] = updated;    // overwrite the item
+                        _selectedIndex = null;      // clear highlight
+                        _controller.clear();        // clear the input
+                      });
                     },
                   )
                 : const Icon(Icons.drag_handle),
             onTap: () {
               setState(() {
                 _selectedIndex = isSelected ? null : index;
-                _controller.text = text;
+                _controller.text = text;        // load into the field
               });
             },
-          ),
+          )
+
         ),
       ),
     );
